@@ -1,10 +1,10 @@
 import "./App.css";
-import { Container } from "./components/container";
+import { AppRouter } from "./config/router";
 
 function App() {
   return (
     <div>
-      <Container />
+      <AppRouter />
     </div>
   );
 }
