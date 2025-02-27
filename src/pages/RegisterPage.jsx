@@ -1,20 +1,14 @@
 import {
+  Select,
+  message,
   Button,
   Card,
   Col,
   Form,
   Input,
-  InputNumber,
-  message,
   Row,
   Typography,
 } from "antd";
-import {
-  LockOutlined,
-  UserOutlined,
-  MailOutlined,
-  PhoneOutlined,
-} from "@ant-design/icons";
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -26,6 +20,7 @@ import {
 import { useState } from "react";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 export const RegisterPage = () => {
   const [loading, setLoading] = useState(false);
@@ -55,6 +50,19 @@ export const RegisterPage = () => {
       setLoading(false);
     }
   };
+  const prefixSelector = (
+    <Form.Item name="prefix" noStyle>
+      <Select
+        style={{
+          width: 70,
+        }}
+      >
+        <Option value="86">+86</Option>
+        <Option value="87">+87</Option>
+      </Select>
+    </Form.Item>
+  );
+
   return (
     <Row>
       <Col xs={2} sm={4} md={6} xl={8}></Col>
@@ -69,7 +77,7 @@ export const RegisterPage = () => {
             onFinish={onFinish}
             autoComplete="off"
           >
-            <Form.Item
+            {/* <Form.Item
               name="username"
               rules={[
                 {
@@ -79,22 +87,28 @@ export const RegisterPage = () => {
               ]}
             >
               <Input prefix={<UserOutlined />} placeholder="Username" />
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item
               name="email"
+              label="E-mail"
               rules={[
                 {
+                  type: "email",
+                  message: "The input is not valid E-mail!",
+                },
+                {
                   required: true,
-                  message: "Please input your email!",
+                  message: "Please input your E-mail!",
                 },
               ]}
             >
-              <Input prefix={<MailOutlined />} placeholder="Email" />
+              <Input />
             </Form.Item>
 
             <Form.Item
               name="password"
+              label="Password"
               rules={[
                 {
                   required: true,
@@ -103,15 +117,12 @@ export const RegisterPage = () => {
               ]}
               hasFeedback
             >
-              <Input.Password
-                prefix={<LockOutlined />}
-                type="password"
-                placeholder="Password"
-              />
+              <Input.Password />
             </Form.Item>
 
             <Form.Item
               name="confirm"
+              label="Confirm Password"
               dependencies={["password"]}
               hasFeedback
               rules={[
@@ -133,15 +144,27 @@ export const RegisterPage = () => {
                 }),
               ]}
             >
-              <Input.Password
-                prefix={<LockOutlined />}
-                type="password"
-                placeholder="Confirm Password"
-              />
+              <Input.Password />
+            </Form.Item>
+
+            <Form.Item
+              name="nickname"
+              label="Nickname"
+              tooltip="What do you want others to call you?"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input your nickname!",
+                  whitespace: true,
+                },
+              ]}
+            >
+              <Input />
             </Form.Item>
 
             <Form.Item
               name="phone"
+              label="Phone Number"
               rules={[
                 {
                   required: true,
@@ -149,14 +172,69 @@ export const RegisterPage = () => {
                 },
               ]}
             >
-              <InputNumber
-                prefix={<PhoneOutlined />}
-                placeholder="Phone Number"
+              <Input
+                addonBefore={prefixSelector}
                 style={{
                   width: "100%",
                 }}
               />
             </Form.Item>
+
+            <Form.Item
+              name="intro"
+              label="Intro"
+              rules={[
+                {
+                  required: true,
+                  message: "Please input Intro",
+                },
+              ]}
+            >
+              <Input.TextArea showCount maxLength={100} />
+            </Form.Item>
+
+            <Form.Item
+              name="gender"
+              label="Gender"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select gender!",
+                },
+              ]}
+            >
+              <Select placeholder="select your gender">
+                <Option value="male">Male</Option>
+                <Option value="female">Female</Option>
+                <Option value="other">Other</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
+              label="Captcha"
+              extra="We must make sure that your are a human."
+            >
+              <Row gutter={8}>
+                <Col span={12}>
+                  <Form.Item
+                    name="captcha"
+                    noStyle
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input the captcha you got!",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Button>Get captcha</Button>
+                </Col>
+              </Row>
+            </Form.Item>
+
             <Form.Item style={{ textAlign: "center" }} label={null}>
               <Button
                 style={{
