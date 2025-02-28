@@ -1,12 +1,12 @@
 import "./App.css";
 import { AppRouter } from "./config/router";
-import RegisterForm from "./pages/NewPage";
+// import { RegisterPage } from "./pages/NewPage";
 
 function App() {
   return (
     <div>
       <AppRouter />
-      {/* <RegisterForm/> */}
+      {/* <RegisterPage /> */}
     </div>
   );
 }
