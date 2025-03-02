@@ -14,8 +14,58 @@ import {
   MessageSeparator,
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
+import User from "../context/User";
+import { useContext, useEffect, useState } from "react";
+import {
+  db,
+  getDocs,
+  collection,
+  auth,
+  signOut,
+  query,
+  where,
+  onSnapshot,
+} from "../config/firebase";
+
+const capitalizeWords = (str) => {
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
 export const Container = () => {
+  const user = useContext(User).user;
+  user.username = capitalizeWords(user.username || "");
+  const logOut = () => signOut(auth);
+  const [chats, setChats] = useState([]);
+
+  useEffect(() => {
+    const getAllUsers = async () => {
+      try {
+        const q = query(
+          collection(db, "users"),
+          where("email", "!=", user.email)
+        );
+        onSnapshot(q, (querySnapshot) => {
+          const users = [];
+          querySnapshot.forEach((doc) => {
+            const user = { ...doc.data(), id: doc.id };
+            user.username = capitalizeWords(user.username || "");
+            users.push(user);
+          });
+          // const name = users.doc.data().username
+
+          setChats(users);
+          console.log("Current users in CA: ", users);
+        });
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    getAllUsers();
+  }, [user.email]);
+
   return (
     <MainContainer
       responsive
@@ -26,17 +76,19 @@ export const Container = () => {
       <Sidebar position="left">
         <Search placeholder="Search..." />
         <ConversationList>
-          <Conversation
-            info="Yes i can do it for you"
-            lastSenderName="Lilly"
-            name="Lilly"
-          >
-            <Avatar
-              name="Lilly"
-              src="https://chatscope.io/storybook/react/assets/lilly-aj6lnGPk.svg"
-              status="available"
-            />
-          </Conversation>
+          {chats.map((v) => (
+            <Conversation
+              key={v.id}
+              info="Yes i can do it for you"
+              name={v?.username}
+            >
+              <Avatar
+                name={v?.username}
+                src={`https://ui-avatars.com/api/?name=${v?.username}&background=random`}
+                status="available"
+              />
+            </Conversation>
+          ))}
         </ConversationList>
       </Sidebar>
       <ChatContainer>
@@ -51,7 +103,7 @@ export const Container = () => {
             userName="Zoe"
           />
           <ConversationHeader.Actions>
-            <EllipsisButton orientation="vertical" />
+            <EllipsisButton onClick={logOut} orientation="vertical" />
           </ConversationHeader.Actions>
         </ConversationHeader>
         <MessageList
@@ -73,7 +125,7 @@ export const Container = () => {
             />
           </Message>
           <Message
-            avatarSpacer
+            // avatarSpacer
             model={{
               direction: "outgoing",
               message: "Hello my friend",
@@ -81,7 +133,12 @@ export const Container = () => {
               sender: "Patrik",
               sentTime: "15 mins ago",
             }}
-          />
+          >
+            <Avatar
+              name={user?.username}
+              src={`https://ui-avatars.com/api/?name=${user?.username}&background=random`}
+            />
+          </Message>
         </MessageList>
         <MessageInput placeholder="Type message here" />
       </ChatContainer>

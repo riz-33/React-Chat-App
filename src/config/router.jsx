@@ -2,18 +2,65 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ChatPage } from "../pages/ChatPage";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
+import { useEffect, useState } from "react";
+import { onAuthStateChanged, auth, getDoc, db, doc } from "./firebase";
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin } from "antd";
 import { NewRegisterPage } from "../pages/NewPage.jsx";
 
 export const AppRouter = () => {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element=<LoginPage /> />
-        <Route path="/register" element=<RegisterPage /> />
-        <Route path="/newregister" element=<NewRegisterPage/>/>
-        <Route path="/chatapp" element=<ChatPage /> />
+  const [User, setUser] = useState(false);
+  const [loader, setLoader] = useState(true);
 
-      </Routes>
-    </BrowserRouter>
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const docRef = doc(db, "users", user.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setUser(true);
+        }
+      } else {
+        setUser(false);
+      }
+      setLoader(false);
+    });
+  }, []);
+
+  return (
+    <>
+      {loader ? (
+        <Spin
+          style={{
+            display: "flex",
+            height: "100vh",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          size="large"
+        />
+      ) : (
+        <BrowserRouter>
+          <Routes>
+            <Route
+              path="/"
+              element={User ? <Navigate to={"/chatapp"} /> : <LoginPage />}
+            />
+            <Route
+              path="/register"
+              element={User ? <Navigate to={"/chatapp"} /> : <RegisterPage />}
+            />
+            <Route
+              path="/chatapp"
+              element={User ? <ChatPage /> : <Navigate to={"/"} />}
+            />
+            <Route
+              path="/newregister"
+              element={User ? <Navigate to={"/chatapp"} /> : <NewRegisterPage />}
+            />
+          </Routes>
+        </BrowserRouter>
+      )}
+    </>
   );
 };

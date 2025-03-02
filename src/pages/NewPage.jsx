@@ -50,7 +50,7 @@ export const NewRegisterPage = () => {
         password: data.password,
         number: data.phone,
         gender: data.gender,
-        bio: data.intro,
+        // bio: data.intro,
         uid: response.user.uid,
         createdAt: serverTimestamp(),
       });
@@ -60,23 +60,11 @@ export const NewRegisterPage = () => {
       setLoading(false);
     }
   };
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  );
 
   return (
     <Row>
       <Col xs={2} sm={4} md={6} xl={8}></Col>
-      <Col xs={20} sm={16} md={12} xl={8} style={{ marginTop: 100 }}>
+      <Col xs={20} sm={16} md={12} xl={8} style={{ marginTop: 60 }}>
         <Card>
           <Title level={2} style={{ textAlign: "center" }}>
             Register
@@ -170,21 +158,6 @@ export const NewRegisterPage = () => {
                 </Form.Item>
               </Col>
 
-              {/* <Form.Item
-              name="nickname"
-              
-              tooltip="What do you want others to call you?"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your nickname!",
-                  whitespace: true,
-                  },
-                  ]}
-                  >
-                  <Input placeholder="Nickname" />
-                  </Form.Item> */}
-
               <Col xs={24} sm={16} md={12}>
                 <Form.Item
                   name="phone"
@@ -224,7 +197,7 @@ export const NewRegisterPage = () => {
                   </Select>
                 </Form.Item>
               </Col>
-              <Col xs={24}>
+              {/* <Col xs={24}>
                 <Form.Item
                   name="intro"
                   rules={[
@@ -237,13 +210,13 @@ export const NewRegisterPage = () => {
                   <Input.TextArea
                     placeholder="Intro"
                     showCount
-                    maxLength={100}
+                    maxLength={10}
                   />
                 </Form.Item>
-              </Col>
+              </Col> */}
             </Row>
 
-            <Form.Item extra="We must make sure that your are a human.">
+            {/* <Form.Item extra="We must make sure that your are a human.">
               <Row gutter={8}>
                 <Col span={12}>
                   <Form.Item
@@ -263,7 +236,7 @@ export const NewRegisterPage = () => {
                   <Button>Get captcha</Button>
                 </Col>
               </Row>
-            </Form.Item>
+            </Form.Item> */}
 
             <Form.Item style={{ textAlign: "center" }} label={null}>
               <Button
