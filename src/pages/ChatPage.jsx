@@ -14,8 +14,6 @@ import {
   MessageSeparator,
   TypingIndicator,
 } from "@chatscope/chat-ui-kit-react";
-import User from "../context/User";
-import { useCallback, useContext, useEffect, useState } from "react";
 import {
   db,
   collection,
@@ -26,9 +24,16 @@ import {
   onSnapshot,
   serverTimestamp,
   addDoc,
+  orderBy,
+  updateDoc,
+  doc,
 } from "../config/firebase";
+import User from "../context/User";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { LogoutOutlined } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { formatDistance } from "date-fns";
+
 
 const capitalizeWords = (str) => {
   return str
@@ -49,6 +54,7 @@ export const ChatPage = () => {
   const [chats, setChats] = useState([]);
   const [currentChat, setCurrentChat] = useState({});
   const [messageInputValue, setMessageInputValue] = useState("");
+  const [chatMessages, setChatMessages] = useState([]);
 
   const [searchParams, setSearchParams] = useSearchParams();
   const chatIdParam = searchParams.get("chatId");
@@ -93,6 +99,16 @@ export const ChatPage = () => {
     setChatContainerStyle,
   ]);
 
+  const chatId = (currentId) => {
+    let id = "";
+    if (user.uid < currentId) {
+      id = `${user.uid}${currentId}`;
+    } else {
+      id = `${currentId}${user.uid}`;
+    }
+    return id;
+  };
+
   useEffect(() => {
     const getAllUsers = async () => {
       try {
@@ -107,11 +123,9 @@ export const ChatPage = () => {
             user.username = capitalizeWords(user.username || "");
             users.push(user);
           });
-          // const name = users.doc.data().username
-
           setChats(users);
           setCurrentChat(users[0]);
-          console.log("Current users in CA: ", users);
+          // console.log("Current users: ", users);
         });
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -129,22 +143,50 @@ export const ChatPage = () => {
       receiver: currentChat.uid,
       senderName: user.username,
       receiverName: currentChat.username,
-      // chatId: chatId(),
+      chatId: chatId(currentChat.uid),
       timeStamp: serverTimestamp(),
     });
-    // await updateDoc(doc(db, "users", currentChat.uid), {
-    //     [`lastMessages.${chatId(currentChat.uid)}`]: {
-    //         lastMessage: messageInputValue,
-    //         chatId: chatId(currentChat.uid)
-    //     }
-    // });
-    // await updateDoc(doc(db, "users", user.uid), {
-    //     [`lastMessages.${chatId(currentChat.uid)}`]: {
-    //         lastMessage: messageInputValue,
-    //         chatId: chatId(currentChat.uid)
-    //     }
-    // });
+    await updateDoc(doc(db, "users", currentChat.uid), {
+      [`lastMessages.${chatId(currentChat.uid)}`]: {
+        lastMessage: messageInputValue,
+        chatId: chatId(currentChat.uid),
+      },
+    });
+    await updateDoc(doc(db, "users", user.uid), {
+      [`lastMessages.${chatId(currentChat.uid)}`]: {
+        lastMessage: messageInputValue,
+        chatId: chatId(currentChat.uid),
+      },
+    });
   };
+
+  useEffect(() => {
+    const getAllMessages = async () => {
+      try {
+        const q = query(
+          collection(db, "messages"),
+          where("chatId", "==", chatId(currentChat.uid)),
+          orderBy("timeStamp", "asc")
+        );
+        onSnapshot(q, (querySnapshot) => {
+          const messages = [];
+          querySnapshot.forEach((doc) => {
+            messages.push({
+              ...doc.data(),
+              id: doc.id,
+              direction:
+                doc.data().sender === user.uid ? "outgoing" : "incoming",
+            });
+          });
+          setChatMessages(messages);
+          console.log(messages);
+        });
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+    getAllMessages();
+  }, [currentChat]);
 
   return (
     <MainContainer
@@ -170,7 +212,7 @@ export const ChatPage = () => {
             <LogoutOutlined onClick={logOut} style={{ fontSize: 22 }} />
           </ConversationHeader.Actions>
         </ConversationHeader>
-        <Search placeholder="Search..." />
+        {/* <Search placeholder="Search..." /> */}
         <ConversationList>
           {chats.map((v) => (
             <Conversation
@@ -187,7 +229,7 @@ export const ChatPage = () => {
               }}
             >
               <Conversation.Content
-                info="Yes i can do it for you"
+                info={v?.lastMessages?.[chatId(v.id)]?.lastMessage || ""}
                 name={v?.username}
                 style={conversationContentStyle}
               />
@@ -221,35 +263,28 @@ export const ChatPage = () => {
           typingIndicator={<TypingIndicator content="Zoe is typing" />}
         >
           <MessageSeparator content="Saturday, 30 November 2019" />
-          <Message
-            model={{
-              direction: "incoming",
-              message: "Hello my friend",
-              position: "single",
-              sender: "Zoe",
-              sentTime: "15 mins ago",
-            }}
-          >
-            <Avatar
-              name={currentChat?.username}
-              src={`https://ui-avatars.com/api/?name=${currentChat?.username}&background=random`}
-            />
-          </Message>
-          <Message
-            // avatarSpacer
-            model={{
-              direction: "outgoing",
-              message: "Hello my friend",
-              position: "single",
-              sender: "Patrik",
-              sentTime: "15 mins ago",
-            }}
-          >
-            <Avatar
-              name={user?.username}
-              src={`https://ui-avatars.com/api/?name=${user?.username}&background=random`}
-            />
-          </Message>
+          {chatMessages.map((v, i) => (
+            <Message
+              key={i}
+              model={{
+                direction: v.direction,
+                message: v.message,
+                position: "single",
+                sender: v.senderName,
+                sentTime: v.sentTime,
+              }}
+            >
+              <Avatar
+                name={v.senderName}
+                src={`https://ui-avatars.com/api/?name=${v.senderName}&background=random`}
+              />
+              <Message.Footer style={{margin:0}}
+                sentTime={formatDistance(new Date(v.sentTime), new Date(), {
+                  addSuffix: true,
+                })}
+              />
+            </Message>
+          ))}
         </MessageList>
         <MessageInput
           placeholder="Type message here"
