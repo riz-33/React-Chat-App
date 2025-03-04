@@ -34,7 +34,6 @@ import { LogoutOutlined } from "@ant-design/icons";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { formatDistance } from "date-fns";
 
-
 const capitalizeWords = (str) => {
   return str
     .split(" ")
@@ -55,11 +54,10 @@ export const ChatPage = () => {
   const [currentChat, setCurrentChat] = useState({});
   const [messageInputValue, setMessageInputValue] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const chatIdParam = searchParams.get("chatId");
-  const navigate = useNavigate();
-
+  const [clickedMessage, setClickedMessage] = useState(null);
+  const handleMessageClick = (id) => {
+    setClickedMessage(clickedMessage === id ? null : id);
+  };
   const handleBackClick = () => setSidebarVisible(!sidebarVisible);
   const handleConversationClick = useCallback(() => {
     if (sidebarVisible) {
@@ -124,7 +122,7 @@ export const ChatPage = () => {
             users.push(user);
           });
           setChats(users);
-          setCurrentChat(users[0]);
+          // setCurrentChat(users[0]);
           // console.log("Current users: ", users);
         });
       } catch (error) {
@@ -195,7 +193,7 @@ export const ChatPage = () => {
         height: "100vh",
       }}
     >
-      <Sidebar style={sidebarStyle} position="left">
+      <Sidebar style={sidebarStyle} position="left" scrollable={false}>
         <ConversationHeader style={{ paddingBottom: 13 }}>
           <Avatar
             style={{ cursor: "pointer" }}
@@ -216,16 +214,10 @@ export const ChatPage = () => {
         <ConversationList>
           {chats.map((v) => (
             <Conversation
-              style={{
-                backgroundColor:
-                  searchParams.get("chatId") === v.id ? "#c6e3fa" : "",
-              }}
               key={v.id}
               onClick={() => {
                 handleConversationClick();
                 setCurrentChat(v);
-                // searchParams.set("chatId", v.id);
-                // navigate(`/chatapp?${searchParams}`);
               }}
             >
               <Conversation.Content
@@ -262,9 +254,10 @@ export const ChatPage = () => {
         <MessageList
           typingIndicator={<TypingIndicator content="Zoe is typing" />}
         >
-          <MessageSeparator content="Saturday, 30 November 2019" />
+          {/* <MessageSeparator content="Saturday, 30 November 2019" /> */}
           {chatMessages.map((v, i) => (
             <Message
+              style={{ cursor: "pointer" }}
               key={i}
               model={{
                 direction: v.direction,
@@ -273,16 +266,20 @@ export const ChatPage = () => {
                 sender: v.senderName,
                 sentTime: v.sentTime,
               }}
+              onClick={() => handleMessageClick(v.id)}
             >
               <Avatar
                 name={v.senderName}
                 src={`https://ui-avatars.com/api/?name=${v.senderName}&background=random`}
               />
-              <Message.Footer style={{margin:0}}
-                sentTime={formatDistance(new Date(v.sentTime), new Date(), {
-                  addSuffix: true,
-                })}
-              />
+              {clickedMessage === v.id && (
+                <Message.Footer
+                  style={{ margin: 0 }}
+                  sentTime={formatDistance(new Date(v.sentTime), new Date(), {
+                    addSuffix: true,
+                  })}
+                />
+              )}
             </Message>
           ))}
         </MessageList>
