@@ -9,6 +9,8 @@ import {
   Row,
   Typography,
 } from "antd";
+import { LockOutlined, UserOutlined, MailOutlined } from "@ant-design/icons";
+import { BsGenderAmbiguous } from "react-icons/bs";
 import {
   auth,
   createUserWithEmailAndPassword,
@@ -18,6 +20,8 @@ import {
   serverTimestamp,
 } from "../config/firebase";
 import { useState } from "react";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -40,7 +44,7 @@ export const RegisterPage = () => {
         email: data.email,
         password: data.password,
         number: data.phone,
-        currency: "PKR",
+        gender: data.gender,
         uid: response.user.uid,
         createdAt: serverTimestamp(),
       });
@@ -50,29 +54,17 @@ export const RegisterPage = () => {
       setLoading(false);
     }
   };
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select
-        style={{
-          width: 70,
-        }}
-      >
-        <Option value="86">+86</Option>
-        <Option value="87">+87</Option>
-      </Select>
-    </Form.Item>
-  );
 
   return (
     <Row>
-      <Col xs={2} sm={4} md={4} xl={7}></Col>
-      <Col xs={20} sm={16} md={16} xl={10} style={{ marginTop: 20 }}>
+      <Col xs={2} sm={4} md={6} xl={7}></Col>
+      <Col xs={20} sm={16} md={12} xl={10} style={{ marginTop: 60 }}>
         <Card>
-          <Title  level={2} style={{ textAlign: "center" }}>
+          <Title level={2} style={{ textAlign: "center" }}>
             Register
           </Title>
           <Form
-            layout="vertical"
+            layout="horizontal"
             name="basic"
             initialValues={{ remember: true }}
             onFinish={onFinish}
@@ -81,7 +73,6 @@ export const RegisterPage = () => {
             <Row gutter={8}>
               <Col xs={24} sm={16} md={12}>
                 <Form.Item
-                  label="Username"
                   name="username"
                   rules={[
                     {
@@ -90,14 +81,13 @@ export const RegisterPage = () => {
                     },
                   ]}
                 >
-                  <Input />
+                  <Input prefix={<UserOutlined />} placeholder="Username" />
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={16} md={12}>
                 <Form.Item
                   name="email"
-                  label="E-mail"
                   rules={[
                     {
                       type: "email",
@@ -109,14 +99,13 @@ export const RegisterPage = () => {
                     },
                   ]}
                 >
-                  <Input />
+                  <Input prefix={<MailOutlined />} placeholder="E-mail" />
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={16} md={12}>
                 <Form.Item
                   name="password"
-                  label="Password"
                   rules={[
                     {
                       required: true,
@@ -125,14 +114,16 @@ export const RegisterPage = () => {
                   ]}
                   hasFeedback
                 >
-                  <Input.Password />
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="Password"
+                  />
                 </Form.Item>
               </Col>
 
               <Col xs={24} sm={16} md={12}>
                 <Form.Item
                   name="confirm"
-                  label="Confirm Password"
                   dependencies={["password"]}
                   hasFeedback
                   rules={[
@@ -154,29 +145,16 @@ export const RegisterPage = () => {
                     }),
                   ]}
                 >
-                  <Input.Password />
+                  <Input.Password
+                    prefix={<LockOutlined />}
+                    placeholder="Confirm Password"
+                  />
                 </Form.Item>
               </Col>
-
-              {/* <Form.Item
-              name="nickname"
-              label="Nickname"
-              tooltip="What do you want others to call you?"
-              rules={[
-                {
-                  required: true,
-                  message: "Please input your nickname!",
-                  whitespace: true,
-                  },
-                  ]}
-                  >
-                  <Input />
-                  </Form.Item> */}
 
               <Col xs={24} sm={16} md={12}>
                 <Form.Item
                   name="phone"
-                  label="Phone Number"
                   rules={[
                     {
                       required: true,
@@ -184,18 +162,17 @@ export const RegisterPage = () => {
                     },
                   ]}
                 >
-                  <Input
-                    addonBefore={prefixSelector}
-                    style={{
-                      width: "100%",
-                    }}
+                  <PhoneInput
+                    country={"pk"}
+                    placeholder="Phone Number"
+                    inputStyle={{ width: "100%" }}
+                    buttonStyle={{ borderColor: "#d9d9d9" }}
                   />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={16} md={12}>
                 <Form.Item
                   name="gender"
-                  label="Gender"
                   rules={[
                     {
                       required: true,
@@ -203,58 +180,22 @@ export const RegisterPage = () => {
                     },
                   ]}
                 >
-                  <Select placeholder="select your gender">
+                  <Select
+                    prefix={<BsGenderAmbiguous />}
+                    placeholder="Select Your Gender"
+                  >
                     <Option value="male">Male</Option>
                     <Option value="female">Female</Option>
                     <Option value="other">Other</Option>
                   </Select>
                 </Form.Item>
               </Col>
-              <Col xs={24}>
-                <Form.Item
-                  name="intro"
-                  label="Intro"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Please input Intro",
-                    },
-                  ]}
-                >
-                  <Input.TextArea showCount maxLength={100} />
-                </Form.Item>
-              </Col>
             </Row>
-
-            <Form.Item
-              label="Captcha"
-              extra="We must make sure that your are a human."
-            >
-              <Row gutter={8}>
-                <Col span={12}>
-                  <Form.Item
-                    name="captcha"
-                    noStyle
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input the captcha you got!",
-                      },
-                    ]}
-                  >
-                    <Input />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Button>Get captcha</Button>
-                </Col>
-              </Row>
-            </Form.Item>
 
             <Form.Item style={{ textAlign: "center" }} label={null}>
               <Button
                 style={{
-                  backgroundColor: "#1a237e",
+                  backgroundColor: "#58aeff",
                   marginBottom: 10,
                   color: "white",
                 }}
@@ -271,8 +212,7 @@ export const RegisterPage = () => {
           </Form>
         </Card>
       </Col>
-      <Col xs={2} sm={4} md={4} xl={7}></Col>
+      <Col xs={2} sm={4} md={6} xl={7}></Col>
     </Row>
   );
 };
-

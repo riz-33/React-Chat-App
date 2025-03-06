@@ -4,9 +4,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, auth, getDoc, db, doc } from "./firebase";
-import { LoadingOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
-import { NewRegisterPage } from "../pages/NewPage.jsx";
 
 export const AppRouter = () => {
   const [User, setUser] = useState(false);
@@ -53,10 +51,6 @@ export const AppRouter = () => {
             <Route
               path="/chatapp"
               element={User ? <ChatPage /> : <Navigate to={"/"} />}
-            />
-            <Route
-              path="/newregister"
-              element={User ? <Navigate to={"/chatapp"} /> : <NewRegisterPage />}
             />
           </Routes>
         </BrowserRouter>

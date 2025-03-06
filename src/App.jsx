@@ -3,7 +3,6 @@ import "./App.css";
 import { AppRouter } from "./config/router";
 import User from "./context/User";
 import { onAuthStateChanged, auth, doc, getDoc, db } from "./config/firebase";
-// import { RegisterPage } from "./pages/NewPage";
 
 function App() {
   const [user, setUser] = useState(null);
