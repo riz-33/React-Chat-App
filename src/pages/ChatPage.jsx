@@ -28,10 +28,11 @@ import {
 } from "../config/firebase";
 import User from "../context/User";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { LogoutOutlined, UserOutlined } from "@ant-design/icons";
+import { LogoutOutlined } from "@ant-design/icons";
 import { formatDistance } from "date-fns";
 import "../styles/ChatPage.css";
 import { Col, Divider, Drawer, Row } from "antd";
+import { useNavigate } from "react-router-dom";
 const DescriptionItem = ({ title, content }) => (
   <div className="site-description-item-profile-wrapper">
     <p className="site-description-item-profile-p-label">{title}:</p>
@@ -60,6 +61,7 @@ export const ChatPage = () => {
   const [messageInputValue, setMessageInputValue] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [clickedMessage, setClickedMessage] = useState(null);
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const showDrawer = () => {
     setOpen(true);
@@ -195,6 +197,10 @@ export const ChatPage = () => {
     getAllMessages();
   }, [currentChat]);
 
+  const myProfile = () => {
+    console.log("Button clicked!");
+    navigate(`/profile?${user.uid}`);
+  };
   return (
     <MainContainer
       responsive
@@ -208,11 +214,11 @@ export const ChatPage = () => {
             style={{ cursor: "pointer" }}
             name={user.username}
             src={
-              // user.photo || user.photo !== null
-              // ? user.photo:
-              `https://ui-avatars.com/api/?name=${user.username}&background=random`
+              user?.avatar
+                ? user?.avatar
+                : `https://ui-avatars.com/api/?name=${user?.username}&background=random`
             }
-            // onClick={myProfile}
+            onClick={myProfile}
           />
           <ConversationHeader.Content userName={user.username} />
           <ConversationHeader.Actions>
@@ -235,7 +241,11 @@ export const ChatPage = () => {
               />
               <Avatar
                 name={v?.username}
-                src={`https://ui-avatars.com/api/?name=${v?.username}&background=random`}
+                src={
+                  v?.avatar
+                    ? v?.avatar
+                    : `https://ui-avatars.com/api/?name=${v?.username}&background=random`
+                }
                 status="available"
                 style={conversationAvatarStyle}
               />
@@ -247,7 +257,11 @@ export const ChatPage = () => {
         <ConversationHeader>
           <ConversationHeader.Back onClick={handleBackClick} />
           <Avatar
-            src={`https://ui-avatars.com/api/?name=${currentChat?.username}&background=random`}
+            src={
+              currentChat?.avatar
+                ? currentChat?.avatar
+                : `https://ui-avatars.com/api/?name=${currentChat?.username}&background=random`
+            }
             name={currentChat?.username}
           />
           <ConversationHeader.Content
@@ -268,37 +282,58 @@ export const ChatPage = () => {
                 className="site-description-item-profile-p"
                 style={{
                   marginBottom: 24,
+                  textAlign: "center",
                 }}
               >
                 User Profile
               </p>
-              <Avatar  size={150} icon={<UserOutlined />} />
+              <div
+                style={{
+                  height: "180px",
+                  width: "180px",
+                  justifySelf: "center",
+                  marginBottom: 30,
+                }}
+              >
+                <Avatar
+                  name={currentChat?.username}
+                  src={
+                    currentChat?.avatar
+                      ? currentChat.avatar
+                      : currentChat?.gender === "male"
+                      ? "https://chatscope.io/storybook/react/assets/joe-v8Vy3KOS.svg"
+                      : "https://chatscope.io/storybook/react/assets/akane-MXhWvx63.svg"
+                  }
+                  size="fluid"
+                />
+              </div>
               <p className="site-description-item-profile-p">Personal</p>
               <Row>
                 <Col span={12}>
-                  <DescriptionItem title="Full Name" content={currentChat?.username} />
+                  <DescriptionItem
+                    title="Full Name"
+                    content={currentChat?.username}
+                  />
                 </Col>
                 <Col span={12}>
                   <DescriptionItem
-                    title="Account"
-                    content="AntDesign@example.com"
+                    title="Gender"
+                    content={currentChat?.gender}
                   />
                 </Col>
               </Row>
               <Row>
                 <Col span={12}>
-                  <DescriptionItem title="City" content="HangZhou" />
+                  <DescriptionItem
+                    title="City"
+                    content={currentChat?.city || ""}
+                  />
                 </Col>
                 <Col span={12}>
-                  <DescriptionItem title="Country" content="China🇨🇳" />
-                </Col>
-              </Row>
-              <Row>
-                <Col span={12}>
-                  <DescriptionItem title="Birthday" content="February 2,1900" />
-                </Col>
-                <Col span={12}>
-                  <DescriptionItem title="Website" content="-" />
+                  <DescriptionItem
+                    title="Country"
+                    content={currentChat?.country || ""}
+                  />
                 </Col>
               </Row>
               <Row>
@@ -313,10 +348,7 @@ export const ChatPage = () => {
               <p className="site-description-item-profile-p">Contacts</p>
               <Row>
                 <Col span={12}>
-                  <DescriptionItem
-                    title="Email"
-                    content={currentChat?.email}
-                  />
+                  <DescriptionItem title="Email" content={currentChat?.email} />
                 </Col>
                 <Col span={12}>
                   <DescriptionItem

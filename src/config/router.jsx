@@ -5,6 +5,7 @@ import { RegisterPage } from "../pages/RegisterPage";
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, auth, getDoc, db, doc } from "./firebase";
 import { Spin } from "antd";
+import ProfilePage from "../pages/ProfilePage";
 
 export const AppRouter = () => {
   const [User, setUser] = useState(false);
@@ -51,6 +52,10 @@ export const AppRouter = () => {
             <Route
               path="/chatapp"
               element={User ? <ChatPage /> : <Navigate to={"/"} />}
+            />
+            <Route
+              path="/profile"
+              element={User ? <ProfilePage /> : <Navigate to={"/"} />}
             />
           </Routes>
         </BrowserRouter>

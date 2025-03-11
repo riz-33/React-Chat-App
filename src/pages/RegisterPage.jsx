@@ -45,6 +45,8 @@ export const RegisterPage = () => {
         password: data.password,
         number: data.phone,
         gender: data.gender,
+        city: "Karachi",
+        country: "Pakistan",
         uid: response.user.uid,
         createdAt: serverTimestamp(),
       });
@@ -184,9 +186,9 @@ export const RegisterPage = () => {
                     prefix={<BsGenderAmbiguous />}
                     placeholder="Select Your Gender"
                   >
-                    <Option value="male">Male</Option>
-                    <Option value="female">Female</Option>
-                    <Option value="other">Other</Option>
+                    <Option value="Male">Male</Option>
+                    <Option value="Female">Female</Option>
+                    <Option value="Other">Other</Option>
                   </Select>
                 </Form.Item>
               </Col>
