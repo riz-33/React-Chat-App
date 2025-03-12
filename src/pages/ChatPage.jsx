@@ -129,13 +129,31 @@ export const ChatPage = () => {
           where("email", "!=", user.email)
         );
         onSnapshot(q, (querySnapshot) => {
-          const users = [];
+          let users = [];
           querySnapshot.forEach((doc) => {
-            const user = { ...doc.data(), id: doc.id };
-            user.username = capitalizeWords(user.username || "");
-            users.push(user);
+            const userData = { ...doc.data(), id: doc.id };
+            userData.username = capitalizeWords(userData.username || "");
+            users.push(userData);
           });
+
+          users.sort((a, b) => {
+            const lastMsgA = a.lastMessages?.[chatId(a.id)]?.timeStamp;
+            const lastMsgB = b.lastMessages?.[chatId(b.id)]?.timeStamp;
+
+            if (!lastMsgA) return 1;
+            if (!lastMsgB) return -1;
+
+            const timeA = lastMsgA.seconds || 0;
+            const timeB = lastMsgB.seconds || 0;
+
+            return timeB - timeA;
+          });
+
           setChats(users);
+
+          if (users.length > 0) {
+            setCurrentChat(users[0]); 
+          }
         });
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -146,7 +164,8 @@ export const ChatPage = () => {
 
   const onSend = async () => {
     setMessageInputValue("");
-    await addDoc(collection(db, "messages"), {
+
+    const messageData = {
       message: messageInputValue,
       sentTime: new Date().toISOString(),
       sender: user.uid,
@@ -155,18 +174,21 @@ export const ChatPage = () => {
       receiverName: currentChat.username,
       chatId: chatId(currentChat.uid),
       timeStamp: serverTimestamp(),
-    });
+    };
+
+    await addDoc(collection(db, "messages"), messageData);
+
+    const lastMessageData = {
+      lastMessage: messageInputValue,
+      timeStamp: serverTimestamp(),
+    };
+
     await updateDoc(doc(db, "users", currentChat.uid), {
-      [`lastMessages.${chatId(currentChat.uid)}`]: {
-        lastMessage: messageInputValue,
-        chatId: chatId(currentChat.uid),
-      },
+      [`lastMessages.${chatId(currentChat.uid)}`]: lastMessageData,
     });
+
     await updateDoc(doc(db, "users", user.uid), {
-      [`lastMessages.${chatId(currentChat.uid)}`]: {
-        lastMessage: messageInputValue,
-        chatId: chatId(currentChat.uid),
-      },
+      [`lastMessages.${chatId(currentChat.uid)}`]: lastMessageData,
     });
   };
 
@@ -209,7 +231,7 @@ export const ChatPage = () => {
       }}
     >
       <Sidebar style={sidebarStyle} position="left" scrollable={false}>
-        <ConversationHeader style={{ paddingBottom: 13 }}>
+        <ConversationHeader>
           <Avatar
             style={{ cursor: "pointer" }}
             name={user.username}
@@ -246,7 +268,7 @@ export const ChatPage = () => {
                     ? v?.avatar
                     : `https://ui-avatars.com/api/?name=${v?.username}&background=random`
                 }
-                status="available"
+                // status="available"
                 style={conversationAvatarStyle}
               />
             </Conversation>
@@ -266,7 +288,7 @@ export const ChatPage = () => {
           />
           <ConversationHeader.Content
             userName={currentChat?.username}
-            info="Active 10 mins ago"
+            // info="Active 10 mins ago"
           />
 
           <ConversationHeader.Actions>
@@ -300,7 +322,7 @@ export const ChatPage = () => {
                   src={
                     currentChat?.avatar
                       ? currentChat.avatar
-                      : currentChat?.gender === "male"
+                      : currentChat?.gender === "Male"
                       ? "https://chatscope.io/storybook/react/assets/joe-v8Vy3KOS.svg"
                       : "https://chatscope.io/storybook/react/assets/akane-MXhWvx63.svg"
                   }
@@ -336,14 +358,14 @@ export const ChatPage = () => {
                   />
                 </Col>
               </Row>
-              <Row>
+              {/* <Row>
                 <Col span={24}>
                   <DescriptionItem
                     title="Message"
                     content="Make things as simple as possible but no simpler."
                   />
                 </Col>
-              </Row>
+              </Row> */}
               <Divider />
               <p className="site-description-item-profile-p">Contacts</p>
               <Row>
@@ -377,7 +399,7 @@ export const ChatPage = () => {
           </ConversationHeader.Actions>
         </ConversationHeader>
         <MessageList
-          typingIndicator={<TypingIndicator content="Zoe is typing" />}
+        // typingIndicator={<TypingIndicator content="Zoe is typing" />}
         >
           {chatMessages.map((v, i) => (
             <Message

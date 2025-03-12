@@ -14,11 +14,12 @@ import {
   Avatar,
 } from "antd";
 import PhoneInput from "react-phone-input-2";
-import { UserOutlined } from "@ant-design/icons";
+import { HomeTwoTone, UserOutlined } from "@ant-design/icons";
 import User from "../context/User";
 import { useContext, useEffect, useState } from "react";
 import { doc, db, updateDoc, onSnapshot } from "../config/firebase";
 import "../styles/ChatPage.css";
+import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
   const user = useContext(User).user;
@@ -26,6 +27,7 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar || "");
+  const navigate = useNavigate();
 
   const compressImage = (file) => {
     return new Promise((resolve) => {
@@ -137,16 +139,28 @@ const ProfilePage = () => {
     }
   };
 
+  const home = () => {
+    // console.log("Button clicked!");
+    navigate(`/chatapp`);
+  };
+
   return (
     <Row style={{ marginTop: "20px" }}>
       <Col xs={2} sm={4} md={4} lg={5} xl={6}></Col>
       <Col xs={20} sm={16} md={16} lg={14} xl={12}>
         <Card>
-          <Typography
-            style={{ fontSize: 20, textAlign: "center", marginBottom: 10 }}
-          >
-            User Profile
-          </Typography>
+          <Row style={{ alignItems: "baseline" }}>
+            <Col span={18} push={3}>
+              <Typography
+                style={{ fontSize: 20, textAlign: "center", marginBottom: 10 }}
+              >
+                User Profile
+              </Typography>
+            </Col>
+            <Col span={6} pull={18}>
+              <HomeTwoTone onClick={home} style={{ fontSize: 20, cursor: "pointer" }} />
+            </Col>
+          </Row>
 
           <Form
             form={form}
