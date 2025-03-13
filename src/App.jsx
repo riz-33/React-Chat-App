@@ -3,6 +3,7 @@ import "./App.css";
 import { AppRouter } from "./config/router";
 import User from "./context/User";
 import { onAuthStateChanged, auth, doc, getDoc, db } from "./config/firebase";
+import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 
 function App() {
   const [user, setUser] = useState(null);
