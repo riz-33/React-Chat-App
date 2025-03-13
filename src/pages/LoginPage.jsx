@@ -37,8 +37,8 @@ export const LoginPage = () => {
   };
   return (
     <Row>
-      <Col xs={2} sm={4} md={6} xl={7}></Col>
-      <Col xs={20} sm={16} md={12} xl={10} style={{ marginTop: 100 }}>
+      <Col xs={2} sm={4} md={6} xl={8}></Col>
+      <Col xs={20} sm={16} md={12} xl={8} style={{ marginTop: 100 }}>
         <Card>
           <Title level={2} style={{ textAlign: "center" }}>
             Login
@@ -90,7 +90,7 @@ export const LoginPage = () => {
           </Form>
         </Card>
       </Col>
-      <Col xs={2} sm={4} md={6} xl={7}></Col>
+      <Col xs={2} sm={4} md={6} xl={8}></Col>
     </Row>
   );
 };

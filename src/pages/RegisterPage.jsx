@@ -59,8 +59,8 @@ export const RegisterPage = () => {
 
   return (
     <Row>
-      <Col xs={2} sm={4} md={6} xl={7}></Col>
-      <Col xs={20} sm={16} md={12} xl={10} style={{ marginTop: 60 }}>
+      <Col xs={2} sm={4} md={4} xl={6}></Col>
+      <Col xs={20} sm={16} md={16} xl={12} style={{ marginTop: 60 }}>
         <Card>
           <Title level={2} style={{ textAlign: "center" }}>
             Register
@@ -214,7 +214,7 @@ export const RegisterPage = () => {
           </Form>
         </Card>
       </Col>
-      <Col xs={2} sm={4} md={6} xl={7}></Col>
+      <Col xs={2} sm={4} md={4} xl={6}></Col>
     </Row>
   );
 };

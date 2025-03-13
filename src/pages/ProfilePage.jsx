@@ -158,7 +158,10 @@ const ProfilePage = () => {
               </Typography>
             </Col>
             <Col span={6} pull={18}>
-              <HomeTwoTone onClick={home} style={{ fontSize: 20, cursor: "pointer" }} />
+              <HomeTwoTone
+                onClick={home}
+                style={{ fontSize: 20, cursor: "pointer" }}
+              />
             </Col>
           </Row>
 
@@ -187,7 +190,17 @@ const ProfilePage = () => {
                   direction="vertical"
                   size={16}
                 >
-                  <Avatar src={avatarUrl} size={150} icon={<UserOutlined />} />
+                  <Avatar
+                    src={
+                      avatarUrl
+                        ? avatarUrl
+                        : user?.gender === "Male"
+                        ? "https://chatscope.io/storybook/react/assets/joe-v8Vy3KOS.svg"
+                        : "https://chatscope.io/storybook/react/assets/akane-MXhWvx63.svg"
+                    }
+                    size={150}
+                    // icon={<UserOutlined />}
+                  />
                 </Space>
               </Upload>
             </div>
@@ -272,7 +285,7 @@ const ProfilePage = () => {
                 <Button
                   loading={loading}
                   disabled={loading}
-                  style={{ backgroundColor: "#1a237e" }}
+                  style={{ backgroundColor: "#58aeff" }}
                   type="primary"
                   htmlType="submit"
                 >
